@@ -12,7 +12,7 @@ export type EditInfo = {
 export type UserMention = {
     name: string;
     screen_name: string;
-    indices: [number, number];
+    indices: [string, string];
     id_str: string;
     id: string;
 };
@@ -21,7 +21,7 @@ export type Url = {
     url: string;
     expanded_url: string;
     display_url: string;
-    indices: [number, number];
+    indices: [string, string];
 };
 
 export type Hashtag = {
@@ -43,7 +43,8 @@ export type MediaSize = {
 
 export type MediaEntity = {
     expanded_url: string;
-    indices: [number, number];
+    source_status_id: string;
+    indices: [string, string];
     url: string;
     media_url: string;
     id_str: string;
