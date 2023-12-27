@@ -9,7 +9,7 @@
 		type NDKRelayUrl,
 		type NostrEvent
 	} from '@nostr-dev-kit/ndk';
-    import { nip19 } from "nostr-tools"
+	import { nip19 } from 'nostr-tools';
 	import { EventCard } from '@nostr-dev-kit/ndk-svelte-components';
 	import FAQ from './FAQ.svelte';
 	import { browser } from '$app/environment';
@@ -26,7 +26,7 @@
 
 	requestProvider().then((w) => (webln = w));
 
-    const OUTBOX_RELAY = 'wss://purplepag.es';
+	const OUTBOX_RELAY = 'wss://purplepag.es';
 
 	const ndk = new NDK({
 		explicitRelayUrls: [
@@ -257,7 +257,7 @@
 				'#i': [`twitter:${id}`]
 			},
 			{},
-			NDKRelaySet.fromRelayUrls(['wss://relay.nostr.band','wss://relay.exit.pub'], ndk)
+			NDKRelaySet.fromRelayUrls(['wss://relay.nostr.band', 'wss://relay.exit.pub'], ndk)
 		);
 	};
 
@@ -331,7 +331,9 @@
 			if (!replyEvent) replyEvent = await createEvent(replyToId!);
 
 			// if not reply to ourself, fetch from network
-			if (!replyEvent) replyEvent = await fetchTweetEvent(tweet.in_reply_to_screen_name!, replyToId) || undefined
+			if (!replyEvent)
+				replyEvent =
+					(await fetchTweetEvent(tweet.in_reply_to_screen_name!, replyToId)) || undefined;
 
 			if (replyEvent) {
 				// add the reply event as a parent
@@ -346,21 +348,21 @@
 			}
 		}
 
-        // try to find source tweet
-        if (isRetweet(tweet)) {
-            const sourceId = tweet.extended_entities?.media.map(e => e.source_status_id)?.[0]
-            const screenName = tweet.full_text.match(/RT @([a-zA-Z_]+):/)?.[1]
-            console.log("source for retweet", sourceId, screenName)
-            if (sourceId && screenName) {
-                const sourceEvent = await fetchTweetEvent(screenName, sourceId) || undefined
-                console.log("sourceEvent for retweet", sourceId, screenName, sourceEvent)
-                if (sourceEvent) {
-                    // FIXME make kind:6 repost
-                } else {
-                    // FIXME replace RT @mention with RT tweet-url
-                }
-            }
-        }
+		// try to find source tweet
+		if (isRetweet(tweet)) {
+			const sourceId = tweet.extended_entities?.media.map((e) => e.source_status_id)?.[0];
+			const screenName = tweet.full_text.match(/RT @([a-zA-Z_]+):/)?.[1];
+			console.log('source for retweet', sourceId, screenName);
+			if (sourceId && screenName) {
+				const sourceEvent = (await fetchTweetEvent(screenName, sourceId)) || undefined;
+				console.log('sourceEvent for retweet', sourceId, screenName, sourceEvent);
+				if (sourceEvent) {
+					// FIXME make kind:6 repost
+				} else {
+					// FIXME replace RT @mention with RT tweet-url
+				}
+			}
+		}
 
 		// resolve all user mentions, this handles retweets too - those are started with
 		// RT @username
@@ -377,22 +379,20 @@
 			// 	parts.splice(partIndex, 1, prefix, body, suffix);
 			// };
 			for (const user of tweet.entities.user_mentions) {
-                if (user.id_str === "-1") continue;
+				if (user.id_str === '-1') continue;
 				const pubkey = await fetchMentionedPubkey(user.screen_name);
-                let link = '' // `https://twitter.com/${user.screen_name}`
-				if (pubkey)
-					link = `nostr:${nip19.nprofileEncode({ pubkey, relays: [OUTBOX_RELAY] })}`;
+				let link = ''; // `https://twitter.com/${user.screen_name}`
+				if (pubkey) link = `nostr:${nip19.nprofileEncode({ pubkey, relays: [OUTBOX_RELAY] })}`;
 
 				// const i = parseInt(user.indices[0]);
 				// const e = parseInt(user.indices[1]);
-                // replace(i, e, link);
-                if (link)
-                    event.content = event.content.replace(user.screen_name, link);
+				// replace(i, e, link);
+				if (link) event.content = event.content.replace(user.screen_name, link);
 			}
 			// rebuild the content
-//			const content = parts.map((p) => p.c).join('');
+			//			const content = parts.map((p) => p.c).join('');
 			// console.log('replaced', event.content, 'with', content);
-//			event.content = content;
+			//			event.content = content;
 		}
 
 		if (tweet.entities.urls.length) {
